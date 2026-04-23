@@ -15,6 +15,8 @@ class FetchRecord(BaseModel):
     fetched_at: datetime
     status: str  # "success" or "error"
     error: Optional[str] = None
+    size_bytes: Optional[int] = None
+    filename: Optional[str] = None
 
 
 class History:
@@ -42,3 +44,10 @@ class History:
         return sorted(
             self._records, key=lambda r: r.fetched_at, reverse=True
         )[:limit]
+
+    def by_year(self, year: int) -> list[FetchRecord]:
+        """Return all records for a given year, sorted by puzzle_date."""
+        return sorted(
+            [r for r in self._records if r.puzzle_date.year == year],
+            key=lambda r: r.puzzle_date,
+        )

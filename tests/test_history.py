@@ -63,3 +63,47 @@ def test_persistence(tmp_path: Path):
     records = history2.recent(10)
     assert len(records) == 1
     assert records[0].puzzle_date == date(2026, 4, 23)
+
+
+def test_fetch_record_with_size(tmp_path: Path):
+    history = History(path=tmp_path / "history.json")
+    history.add(FetchRecord(
+        puzzle_date=date(2026, 4, 23),
+        fetched_at=datetime(2026, 4, 23, 22, 0, 0),
+        status="success",
+        size_bytes=223744,
+        filename="NYT Crossword - Apr 23, 2026.pdf",
+    ))
+    records = history.recent(10)
+    assert records[0].size_bytes == 223744
+    assert records[0].filename == "NYT Crossword - Apr 23, 2026.pdf"
+
+
+def test_by_year(tmp_path: Path):
+    history = History(path=tmp_path / "history.json")
+    history.add(FetchRecord(
+        puzzle_date=date(2025, 12, 31),
+        fetched_at=datetime(2025, 12, 31, 22, 0, 0),
+        status="success",
+    ))
+    history.add(FetchRecord(
+        puzzle_date=date(2026, 1, 1),
+        fetched_at=datetime(2026, 1, 1, 22, 0, 0),
+        status="success",
+    ))
+    history.add(FetchRecord(
+        puzzle_date=date(2026, 4, 23),
+        fetched_at=datetime(2026, 4, 23, 22, 0, 0),
+        status="error",
+        error="cookie expired",
+    ))
+    records_2026 = history.by_year(2026)
+    assert len(records_2026) == 2
+    assert all(r.puzzle_date.year == 2026 for r in records_2026)
+    records_2025 = history.by_year(2025)
+    assert len(records_2025) == 1
+
+
+def test_by_year_empty(tmp_path: Path):
+    history = History(path=tmp_path / "history.json")
+    assert history.by_year(2026) == []
