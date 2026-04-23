@@ -1,0 +1,25 @@
+.cell {
+  width: 14px; height: 14px;
+  border: 0.5px solid var(--rule-strong);
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+  position: relative;
+  padding: 0;
+  background: var(--paper-3);
+}
+.cell:hover { transform: scale(1.35); border-color: var(--ink); z-index: 10; }
+.cell.ok    { background: oklch(48% 0.08 150 / 0.75); border-color: oklch(42% 0.08 150); }
+.cell.err   { background: oklch(48% 0.14 30 / 0.80); border-color: oklch(42% 0.14 30); }
+.cell.none  { background: var(--paper-3); }
+.cell.future-scheduled {
+  background: transparent;
+  border: 0.5px solid oklch(42% 0.12 22 / 0.55);
+}
+.cell.future {
+  background: transparent;
+  border: 0.5px dashed var(--rule);
+  opacity: 0.5;
+}
+.cell.today { outline: 1px solid var(--ink); outline-offset: 1px; }
+.cell.selected { outline: 1.5px solid var(--accent); outline-offset: 1px; }
+.cell.outside { opacity: 0.25; pointer-events: none; }

@@ -1,0 +1,12 @@
+.cell-tip {
+  position: fixed; z-index: 100;
+  background: var(--ink); color: var(--paper);
+  font-family: var(--mono); font-size: 11px;
+  padding: 8px 12px;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 10px));
+  white-space: nowrap;
+  line-height: 1.5;
+}
+.cell-tip .tip-date { font-family: var(--serif); font-size: 13px; font-weight: 500; }
+.cell-tip .tip-action { color: var(--ink-4); font-style: italic; font-family: var(--serif); font-size: 11px; margin-top: 2px; }

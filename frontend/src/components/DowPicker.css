@@ -1,0 +1,7 @@
+.dow-picker { display: flex; flex-direction: column; gap: 8px; }
+.dow-presets { display: flex; gap: 4px; flex-wrap: wrap; }
+.dow-presets button { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 10px; background: none; border: 1px solid var(--rule-strong); }
+.dow-presets button.on { background: var(--ink); color: var(--paper); }
+.dow-toggles { display: flex; gap: 4px; }
+.dow-toggle { width: 36px; height: 36px; font-family: var(--mono); font-size: 13px; background: none; border: 1px solid var(--rule-strong); display: flex; align-items: center; justify-content: center; }
+.dow-toggle.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }

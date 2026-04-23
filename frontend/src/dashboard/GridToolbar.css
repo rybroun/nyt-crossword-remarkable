@@ -1,0 +1,15 @@
+.grid-toolbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+.grid-toolbar-left h2 { font-family: var(--serif); font-size: 28px; font-weight: 500; letter-spacing: -0.02em; margin: 0; line-height: 1.1; }
+.grid-toolbar-right { display: flex; align-items: center; gap: 8px; }
+.view-pivot { display: flex; border: 1px solid var(--ink); height: 32px; }
+.vp-opt { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; padding: 0 14px; background: none; border: none; border-right: 1px solid var(--ink); }
+.vp-opt:last-child { border-right: none; }
+.vp-opt.on { background: var(--ink); color: var(--paper); }
+.year-stepper { display: flex; border: 1px solid var(--ink); height: 32px; align-items: center; }
+.ys-step { background: none; border: none; width: 32px; height: 100%; font-size: 16px; color: var(--ink); display: flex; align-items: center; justify-content: center; }
+.ys-step:disabled { color: var(--ink-3); cursor: default; }
+.ys-year { font-family: var(--mono); font-size: 13px; min-width: 52px; text-align: center; border-left: 1px solid var(--ink); border-right: 1px solid var(--ink); height: 100%; display: flex; align-items: center; justify-content: center; }
+.dow-tabs { display: flex; border: 1px solid var(--ink); height: 32px; }
+.dow-tab { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; padding: 0 10px; background: none; border: none; border-right: 1px solid var(--ink); }
+.dow-tab:last-child { border-right: none; }
+.dow-tab.on { background: var(--ink); color: var(--paper); }
