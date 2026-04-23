@@ -1,0 +1,30 @@
+@import './tokens.css';
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "kern", "liga", "onum";
+  min-height: 100vh;
+}
+.paper-bg::before {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(45deg, transparent 0 3px, oklch(22% 0.015 60 / 0.008) 3px 4px);
+  z-index: 0;
+}
+button { font-family: inherit; color: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; color: inherit; }
+.kicker {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+}

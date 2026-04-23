@@ -1,0 +1,8 @@
+.status-pill {
+  font-family: var(--mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 2px 8px; border-radius: 2px;
+}
+.status-pill.ok   { background: oklch(48% 0.08 150 / 0.15); color: var(--ok); }
+.status-pill.warn { background: oklch(60% 0.11 70 / 0.15); color: var(--warn); }
+.status-pill.err  { background: oklch(48% 0.14 30 / 0.15); color: var(--err); }

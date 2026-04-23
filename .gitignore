@@ -6,3 +6,4 @@ build/
 .venv/
 .env
 *.pdf
+node_modules/

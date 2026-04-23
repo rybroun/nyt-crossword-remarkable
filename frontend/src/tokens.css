@@ -1,0 +1,20 @@
+:root {
+  --paper:       oklch(96% 0.012 85);
+  --paper-2:     oklch(94% 0.014 85);
+  --paper-3:     oklch(91% 0.016 85);
+  --ink:         oklch(22% 0.015 60);
+  --ink-2:       oklch(36% 0.015 60);
+  --ink-3:       oklch(54% 0.012 60);
+  --ink-4:       oklch(72% 0.010 60);
+  --rule:        oklch(22% 0.015 60 / 0.14);
+  --rule-2:      oklch(22% 0.015 60 / 0.08);
+  --rule-strong: oklch(22% 0.015 60 / 0.35);
+  --accent:      oklch(42% 0.12 22);
+  --accent-ink:  oklch(96% 0.012 85);
+  --ok:          oklch(48% 0.08 150);
+  --warn:        oklch(60% 0.11 70);
+  --err:         oklch(48% 0.14 30);
+  --serif: "Source Serif 4", "Source Serif Pro", Georgia, "Times New Roman", serif;
+  --mono:  "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sans:  "Source Sans 3", -apple-system, system-ui, sans-serif;
+}
