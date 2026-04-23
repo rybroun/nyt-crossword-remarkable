@@ -1,8 +1,11 @@
-"""FastAPI server — serves the API and (eventually) the React frontend."""
+"""FastAPI server — serves the API and the React frontend."""
 import logging
+from pathlib import Path
 from apscheduler import AsyncScheduler, ConflictPolicy
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from nyt_crossword_remarkable.api.routes_health import router as health_router
 from nyt_crossword_remarkable.api.routes_history import router as history_router
 from nyt_crossword_remarkable.api.routes_fetch import router as fetch_router
@@ -24,6 +27,22 @@ def create_app() -> FastAPI:
     app.include_router(schedule_router)
     app.include_router(settings_router)
     app.include_router(auth_router)
+
+    # Serve React frontend static files
+    frontend_dir = Path(__file__).parent / "frontend" / "dist"
+    if frontend_dir.exists():
+        # Serve static assets (JS, CSS, etc.)
+        assets_dir = frontend_dir / "assets"
+        if assets_dir.exists():
+            app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
+        @app.get("/{path:path}")
+        async def serve_frontend(path: str):
+            """Serve the React SPA — all non-API routes return index.html."""
+            file_path = frontend_dir / path
+            if file_path.is_file():
+                return FileResponse(file_path)
+            return FileResponse(frontend_dir / "index.html")
 
     scheduler: AsyncScheduler | None = None
 
