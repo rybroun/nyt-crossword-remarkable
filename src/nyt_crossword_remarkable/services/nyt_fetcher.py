@@ -9,6 +9,7 @@ from nyt_crossword_remarkable.config import DEFAULT_CACHE_DIR
 
 NYT_PRINT_URL = "https://www.nytimes.com/svc/crosswords/v2/puzzle/print/{date_code}.pdf"
 NYT_PUZZLE_URL = "https://www.nytimes.com/svc/crosswords/v6/puzzle/daily/{iso_date}.json"
+NYT_LOGIN_URL = "https://myaccount.nytimes.com/svc/ios/v2/login"
 
 
 class NytAuthError(Exception):
@@ -17,6 +18,10 @@ class NytAuthError(Exception):
 
 class NytFetchError(Exception):
     """Raised when fetching the puzzle fails for non-auth reasons."""
+
+
+class NytLoginError(Exception):
+    """Raised when NYT login fails."""
 
 
 def format_puzzle_date(d: date) -> str:
@@ -30,6 +35,33 @@ class NytFetcher:
 
     def _client(self) -> httpx.AsyncClient:
         return httpx.AsyncClient(cookies={"NYT-S": self.cookie})
+
+    @staticmethod
+    async def login(email: str, password: str) -> str:
+        """Log in to NYT and return the NYT-S cookie value."""
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                NYT_LOGIN_URL,
+                data={"login": email, "password": password},
+                headers={
+                    "User-Agent": "Crossword/1844.220922 CFNetwork/1335.0.3 Darwin/21.6.0",
+                    "client_id": "ios.crosswords",
+                },
+            )
+
+        if response.status_code == 403:
+            raise NytLoginError("Invalid credentials or login blocked by NYT.")
+        if response.status_code != 200:
+            raise NytLoginError(f"NYT login failed: HTTP {response.status_code}")
+
+        try:
+            cookies = response.json()["data"]["cookies"]
+            for cookie in cookies:
+                if cookie["name"] == "NYT-S":
+                    return cookie["cipheredValue"]
+            raise NytLoginError("NYT-S cookie not found in login response.")
+        except (KeyError, TypeError) as e:
+            raise NytLoginError(f"Unexpected login response format: {e}")
 
     async def fetch_pdf(self, puzzle_date: date, cache_dir: Path = DEFAULT_CACHE_DIR) -> Path:
         """Download the crossword PDF for the given date. Returns path to the cached file."""
