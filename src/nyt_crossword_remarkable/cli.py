@@ -161,7 +161,7 @@ def history(
 @app.command()
 def serve(
     host: str = typer.Option("0.0.0.0", "--host", "-h", help="Bind address"),
-    port: int = typer.Option(8080, "--port", "-p", help="Bind port"),
+    port: int = typer.Option(8742, "--port", "-p", help="Bind port"),
 ) -> None:
     """Start the web server and scheduler."""
     import uvicorn

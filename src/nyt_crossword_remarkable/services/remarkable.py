@@ -73,6 +73,14 @@ class RemarkableUploader:
                     folders.append(name)
         return folders
 
+    def ensure_folder(self) -> None:
+        """Create the destination folder if it doesn't already exist."""
+        folders = self.list_folders()
+        # Strip leading slash for comparison
+        target = self.folder.lstrip("/")
+        if target not in folders:
+            self.create_folder(self.folder)
+
     def create_folder(self, folder_path: str) -> None:
         """Create a folder on the reMarkable."""
         self._run_rmapi(["mkdir", folder_path], timeout=30)

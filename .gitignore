@@ -1,9 +1,37 @@
+# Python
 __pycache__/
 *.pyc
+*.pyo
 *.egg-info/
 dist/
 build/
 .venv/
+*.whl
+
+# Environment / secrets
 .env
-*.pdf
+.env.*
+*.config/nyt-crossword-remarkable/
+
+# Frontend
 node_modules/
+frontend/.vite/
+
+# Built frontend (force-added to repo, but ignore changes by default)
+# To update: cd frontend && npm run build && git add -f src/nyt_crossword_remarkable/frontend/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Downloaded PDFs (cached locally)
+*.pdf
+
+# Logs
+*.log

@@ -28,6 +28,7 @@ export default function Wizard({ onComplete, onSkip }: Props) {
   const [pairLoading, setPairLoading] = useState(false);
   const [pairDone, setPairDone] = useState(false);
   const [pairError, setPairError] = useState('');
+  const [userName, setUserName] = useState('');
   const [days, setDays] = useState([0, 1, 2, 3, 4, 5, 6]);
   const [time, setTime] = useState('22:00');
   const [tz, setTz] = useState('America/New_York');
@@ -62,6 +63,7 @@ export default function Wizard({ onComplete, onSkip }: Props) {
 
   const finish = async () => {
     await api.schedule.update({ days: days.map(d => DAY_NAMES[d]), time, timezone: tz, enabled: true });
+    await api.settings.update({ user_name: userName, remarkable_folder: folder, file_pattern: 'NYT Crossword - {Mon DD, YYYY}' });
     onComplete();
   };
 
@@ -84,6 +86,11 @@ export default function Wizard({ onComplete, onSkip }: Props) {
             <>
               <h1>A few quiet minutes and you're <em>done.</em></h1>
               <p className="lede">We'll connect to your New York Times account, pair your tablet through the cloud, and decide when the next day's puzzle should quietly appear on your slate.</p>
+              <div className="field" style={{ marginTop: 16 }}>
+                <span className="lbl">Your name</span>
+                <input value={userName} onChange={e => setUserName(e.target.value)} placeholder="e.g. Ryan" />
+                <div className="hint">Used in the dashboard header — "{userName || '...'}'s Remarkable"</div>
+              </div>
             </>
           )}
           {step === 1 && (

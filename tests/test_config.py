@@ -13,7 +13,7 @@ def test_default_config():
     assert config.schedule.time == "22:00"
     assert config.schedule.timezone == "America/New_York"
     assert config.server.host == "0.0.0.0"
-    assert config.server.port == 8080
+    assert config.server.port == 8742
 
 
 def test_save_and_load_config(tmp_path: Path):

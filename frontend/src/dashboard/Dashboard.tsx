@@ -41,7 +41,10 @@ export default function Dashboard({ schedule, onOpenSettings, addToast }: Props)
 
   const handleCellClick = async (date: string) => {
     const today = todayIso();
-    if (date > today) return;
+    if (date > today) {
+      addToast(`Can't fetch a future puzzle`);
+      return;
+    }
     setSelectedDate(date);
     addToast(`Fetching ${date}...`);
     await api.fetch.trigger(date);

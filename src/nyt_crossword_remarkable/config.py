@@ -34,10 +34,11 @@ class ScheduleConfig(BaseModel):
 
 class ServerConfig(BaseModel):
     host: str = "0.0.0.0"
-    port: int = 8080
+    port: int = 8742
 
 
 class Config(BaseModel):
+    user_name: str = ""
     nyt: NytConfig = NytConfig()
     remarkable: RemarkableConfig = RemarkableConfig()
     schedule: ScheduleConfig = ScheduleConfig()

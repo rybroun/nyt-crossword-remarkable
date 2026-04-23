@@ -121,6 +121,7 @@ class TestSettingsRoutes:
 
     def test_update_settings(self, client):
         r = client.put("/api/settings", json={
+            "user_name": "Ryan",
             "remarkable_folder": "/Puzzles",
             "file_pattern": "NYT {date}",
         })

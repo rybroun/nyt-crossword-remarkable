@@ -36,6 +36,18 @@ export default function SettingsDrawer({ open, onClose, schedule, setSchedule, s
         </div>
 
         <div className="settings-section">
+          <h3>Profile</h3>
+          <div className="sub">Personalize your dashboard.</div>
+          <div className="field">
+            <span className="lbl">Your name</span>
+            <input value={settings.user_name} onChange={e => {
+              const s = { ...settings, user_name: e.target.value };
+              setSettings(s); api.settings.update(s);
+            }} placeholder="e.g. Ryan" />
+          </div>
+        </div>
+
+        <div className="settings-section">
           <h3>Schedule</h3>
           <div className="sub">When the daemon should reach for the next day's puzzle.</div>
           <div className="field">
@@ -90,7 +102,7 @@ export default function SettingsDrawer({ open, onClose, schedule, setSchedule, s
               const s = { ...settings, file_pattern: e.target.value };
               setSettings(s); api.settings.update(s);
             }} />
-            <div className="hint">Tokens: {'{Mon DD, YYYY}'}</div>
+            <div className="hint">Tokens: {'{date}'} {'{weekday}'} {'{mon}'} {'{dd}'} {'{yyyy}'} {'{Mon DD, YYYY}'}</div>
           </div>
         </div>
 

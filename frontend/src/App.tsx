@@ -15,7 +15,7 @@ export default function App() {
     time: '22:00', timezone: 'America/New_York', enabled: true,
   });
   const [settings, setSettings] = useState<Settings>({
-    remarkable_folder: '/Crosswords', file_pattern: 'NYT Crossword - {Mon DD, YYYY}',
+    user_name: '', remarkable_folder: '/Crosswords', file_pattern: 'NYT Crossword - {Mon DD, YYYY}',
   });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
@@ -41,11 +41,11 @@ export default function App() {
 
   return (
     <div className="app paper-bg" style={{ position: 'relative', zIndex: 1 }}>
-      <Masthead nytStatus={nytStatus} rmStatus={rmStatus} onNytClick={() => { if (nytStatus !== 'ok') setWizardOpen(true); else addToast('NYT session valid'); }} onRmClick={() => { if (rmStatus !== 'ok') setWizardOpen(true); else addToast('reMarkable connected'); }} />
+      <Masthead userName={settings.user_name} nytStatus={nytStatus} rmStatus={rmStatus} onNytClick={() => { if (nytStatus !== 'ok') setWizardOpen(true); else addToast('NYT session valid'); }} onRmClick={() => { if (rmStatus !== 'ok') setWizardOpen(true); else addToast('reMarkable connected'); }} />
       <Dashboard schedule={schedule} onOpenSettings={() => setSettingsOpen(true)} addToast={addToast} />
       <footer style={{ padding: '12px 48px', borderTop: '1px solid var(--rule)', display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
         <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
-          Ryan's Remarkable &middot; <em>a small daemon, printed nightly</em>
+          {settings.user_name || 'Your'}'s Remarkable &middot; <em>a small daemon, printed nightly</em>
         </span>
         <span style={{ fontFamily: 'var(--mono)', fontSize: 11 }}>
           v0.1.0 &middot; <button style={{ background: 'none', border: 'none', textDecoration: 'underline', fontFamily: 'var(--mono)', fontSize: 11, cursor: 'pointer', color: 'inherit' }} onClick={() => setSettingsOpen(true)}>preferences</button>

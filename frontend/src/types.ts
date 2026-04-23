@@ -18,6 +18,7 @@ export interface ScheduleConfig {
 }
 
 export interface Settings {
+  user_name: string;
   remarkable_folder: string;
   file_pattern: string;
 }

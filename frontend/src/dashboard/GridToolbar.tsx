@@ -12,7 +12,7 @@ export default function GridToolbar({ view, setView, year, setYear, dow, setDow,
   return (
     <div className="grid-toolbar">
       <div className="grid-toolbar-left">
-        <h2>Delivery record</h2>
+        <h2>NYT Crossword Delivery</h2>
         <div className="kicker">{view === 'week' ? 'all days' : 'grouped by day of week'}</div>
       </div>
       <div className="grid-toolbar-right">
