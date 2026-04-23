@@ -12,18 +12,31 @@ from nyt_crossword_remarkable.services.remarkable import (
 )
 
 
+@pytest.fixture(autouse=True)
+def mock_get_rmapi_path():
+    """Always return 'rmapi' as the path for tests."""
+    with patch("nyt_crossword_remarkable.services.remarkable.get_rmapi_path", return_value="rmapi"):
+        yield
+
+
 class TestRemarkableUploader:
     def setup_method(self):
         self.uploader = RemarkableUploader(folder="/Crosswords")
 
     @patch("shutil.which", return_value=None)
-    def test_check_rmapi_not_installed(self, mock_which):
+    @patch("nyt_crossword_remarkable.services.remarkable.is_installed", return_value=False)
+    def test_check_rmapi_not_installed(self, mock_is_installed, mock_which):
         with pytest.raises(RmapiNotFoundError, match="rmapi"):
             self.uploader.check_rmapi()
 
     @patch("shutil.which", return_value="/usr/local/bin/rmapi")
     def test_check_rmapi_installed(self, mock_which):
         self.uploader.check_rmapi()  # should not raise
+
+    @patch("shutil.which", return_value=None)
+    @patch("nyt_crossword_remarkable.services.remarkable.is_installed", return_value=True)
+    def test_check_rmapi_local_install(self, mock_is_installed, mock_which):
+        self.uploader.check_rmapi()  # should not raise because is_installed() is True
 
     @patch("subprocess.run")
     def test_upload_success(self, mock_run):

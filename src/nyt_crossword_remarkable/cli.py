@@ -170,3 +170,21 @@ def serve(
     console.print(f"Starting server at [bold]http://{host}:{port}[/bold]")
     server_app = create_app()
     uvicorn.run(server_app, host=host, port=port)
+
+
+@app.command(name="install-rmapi")
+def install_rmapi_cmd() -> None:
+    """Download and install the rmapi binary."""
+    from nyt_crossword_remarkable.services.rmapi_installer import install, is_installed
+
+    if is_installed():
+        console.print("[green]rmapi is already installed.[/green]")
+        return
+
+    console.print("Downloading rmapi...")
+    try:
+        path = install()
+        console.print(f"[green]rmapi installed at {path}[/green]")
+    except Exception as e:
+        console.print(f"[red]Failed to install rmapi:[/red] {e}")
+        raise typer.Exit(code=1)
