@@ -156,3 +156,17 @@ def history(
         )
 
     console.print(table)
+
+
+@app.command()
+def serve(
+    host: str = typer.Option("0.0.0.0", "--host", "-h", help="Bind address"),
+    port: int = typer.Option(8080, "--port", "-p", help="Bind port"),
+) -> None:
+    """Start the web server and scheduler."""
+    import uvicorn
+    from nyt_crossword_remarkable.server import create_app
+
+    console.print(f"Starting server at [bold]http://{host}:{port}[/bold]")
+    server_app = create_app()
+    uvicorn.run(server_app, host=host, port=port)
