@@ -4,7 +4,7 @@ A small daemon that fetches the daily NYT crossword puzzle as a PDF and delivers
 
 Run it on a home server (Mac Mini, Raspberry Pi, any always-on machine), configure it once through the web dashboard, and forget about it. The next day's puzzle will be waiting on your tablet every morning.
 
-![Dashboard screenshot](design_handoff_remarkable_crossword/screenshots/01-dashboard-allday.png)
+![Dashboard screenshot](docs/images/dashboard.png)
 
 ## Features
 
