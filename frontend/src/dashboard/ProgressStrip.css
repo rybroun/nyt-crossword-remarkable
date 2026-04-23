@@ -1,0 +1,17 @@
+.progress-strip {
+  border: 1px solid var(--rule);
+  padding: 16px;
+  margin-top: 16px;
+}
+.progress-phases { display: flex; gap: 16px; margin-bottom: 12px; }
+.progress-phase { flex: 1; }
+.progress-phase .num { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+.progress-phase .name { font-family: var(--serif); font-size: 14px; font-weight: 500; }
+.progress-bar { height: 3px; background: var(--paper-3); margin-top: 4px; }
+.progress-bar-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+.progress-log {
+  font-family: var(--mono); font-size: 11px; color: var(--ink-2);
+  max-height: 80px; overflow-y: auto; line-height: 1.6;
+}
+.progress-log .ok { color: var(--ok); }
+.progress-log .err { color: var(--err); }

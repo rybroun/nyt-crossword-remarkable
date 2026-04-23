@@ -1,0 +1,44 @@
+.auto-fetch {
+  border: 1px solid var(--rule-strong);
+  padding: 24px;
+  min-width: 280px;
+}
+.auto-fetch .kicker { margin-bottom: 8px; }
+.auto-fetch .phrase {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.auto-fetch .phrase .time { display: block; font-style: normal; }
+.auto-fetch .desc {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--ink-2);
+  margin-top: 8px;
+}
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid var(--rule);
+  font-size: 13px;
+}
+.meta-row .label { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-3); }
+.meta-row .value { font-family: var(--mono); font-size: 13px; }
+.card-actions { display: flex; gap: 8px; margin-top: 16px; }
+.btn {
+  font-family: var(--mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 18px;
+  border: 1px solid var(--ink);
+  background: none;
+  cursor: pointer;
+}
+.btn.primary { background: var(--ink); color: var(--paper); }
+.btn.ghost { border-color: var(--rule-strong); }

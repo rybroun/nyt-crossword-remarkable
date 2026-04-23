@@ -1,0 +1,10 @@
+.section { padding: 32px 48px; }
+.dash-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 32px;
+  align-items: start;
+}
+@media (max-width: 960px) {
+  .dash-layout { grid-template-columns: 1fr; }
+}
