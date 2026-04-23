@@ -1,0 +1,41 @@
+.wizard-scrim {
+  position: fixed; inset: 0;
+  background: oklch(22% 0.015 60 / 0.5);
+  z-index: 60;
+  display: flex; align-items: center; justify-content: center;
+}
+.wizard {
+  background: var(--paper); width: 720px;
+  max-height: 90vh; overflow-y: auto; border: 1px solid var(--ink);
+}
+.wizard-head {
+  padding: 20px 32px; border-bottom: 1px solid var(--ink);
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.wizard-head .wordmark { font-family: var(--serif); font-weight: 700; font-size: 16px; }
+.wizard-head .wordmark em { font-style: italic; font-weight: 400; color: var(--ink-2); }
+.wizard-head .caption { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-3); }
+.wizard-steps {
+  display: flex; border-bottom: 1px solid var(--rule); padding: 0 32px;
+}
+.wizard-steps .step {
+  padding: 12px 16px; display: flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3);
+}
+.wizard-steps .step.active { color: var(--ink); background: var(--paper-2); }
+.wizard-steps .step.done { color: var(--ok); }
+.wizard-body { padding: 32px; }
+.wizard-body h1 { font-family: var(--serif); font-size: 28px; font-weight: 500; letter-spacing: -0.02em; margin: 0 0 16px; }
+.wizard-body h1 em { font-style: italic; }
+.wizard-body .lede { font-family: var(--serif); font-size: 16px; color: var(--ink-2); line-height: 1.6; }
+.wizard-footer {
+  padding: 16px 32px; border-top: 1px solid var(--rule);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.wizard-footer .skip { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; background: none; border: none; color: var(--ink-3); cursor: pointer; }
+.otp-inputs { display: flex; gap: 6px; margin: 16px 0; }
+.otp-inputs input {
+  width: 40px; height: 48px; text-align: center;
+  font-family: var(--mono); font-size: 20px;
+  border: 1px solid var(--rule-strong); background: var(--paper-3); text-transform: uppercase;
+}
