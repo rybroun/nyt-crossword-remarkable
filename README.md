@@ -35,7 +35,7 @@ pip install nyt-crossword-remarkable
 Or from source:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/nyt-crossword-remarkable.git
+git clone https://github.com/rybroun/nyt-crossword-remarkable.git
 cd nyt-crossword-remarkable
 python3 -m venv .venv
 source .venv/bin/activate
@@ -246,7 +246,7 @@ The NYT crossword API and reMarkable cloud API are both undocumented/unofficial.
 ## Development
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/nyt-crossword-remarkable.git
+git clone https://github.com/rybroun/nyt-crossword-remarkable.git
 cd nyt-crossword-remarkable
 python3 -m venv .venv
 source .venv/bin/activate
