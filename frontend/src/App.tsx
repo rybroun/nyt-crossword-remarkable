@@ -10,12 +10,14 @@ import './global.css';
 export default function App() {
   const [nytStatus, setNytStatus] = useState<Status>('ok');
   const [rmStatus, setRmStatus] = useState<Status>('ok');
+  const [libgenStatus, setLibgenStatus] = useState<Status>('ok');
   const [schedule, setSchedule] = useState<ScheduleConfig>({
     days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
     time: '22:00', timezone: 'America/New_York', enabled: true,
   });
   const [settings, setSettings] = useState<Settings>({
     user_name: '', remarkable_folder: '/Crosswords', file_pattern: '{weekday}, {Mon} {DD}, {YYYY}',
+    books_folder: '/Books', libgen_mirror: 'libgen.rs',
   });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
@@ -30,6 +32,9 @@ export default function App() {
     api.health.remarkable().then(h => {
       setRmStatus(h.status === 'ok' ? 'ok' : h.status === 'disconnected' ? 'err' : 'warn');
     }).catch(() => setRmStatus('err'));
+    api.health.libgen().then(h => {
+      setLibgenStatus(h.status === 'ok' ? 'ok' : h.status === 'slow' ? 'warn' : 'err');
+    }).catch(() => setLibgenStatus('err'));
     api.schedule.get().then(setSchedule).catch(() => {});
     api.settings.get().then(setSettings).catch(() => {});
   }, []);
@@ -41,8 +46,8 @@ export default function App() {
 
   return (
     <div className="app paper-bg" style={{ position: 'relative', zIndex: 1 }}>
-      <Masthead userName={settings.user_name} nytStatus={nytStatus} rmStatus={rmStatus} onNytClick={() => { if (nytStatus !== 'ok') setSettingsOpen(true); else addToast('NYT session valid'); }} onRmClick={() => { if (rmStatus !== 'ok') setSettingsOpen(true); else addToast('reMarkable connected'); }} />
-      <Dashboard schedule={schedule} onOpenSettings={() => setSettingsOpen(true)} addToast={addToast} />
+      <Masthead userName={settings.user_name} nytStatus={nytStatus} rmStatus={rmStatus} libgenStatus={libgenStatus} onNytClick={() => { if (nytStatus !== 'ok') setSettingsOpen(true); else addToast('NYT session valid'); }} onRmClick={() => { if (rmStatus !== 'ok') setSettingsOpen(true); else addToast('reMarkable connected'); }} onLibgenClick={() => { if (libgenStatus !== 'ok') setSettingsOpen(true); else addToast('Mirror reachable'); }} />
+      <Dashboard schedule={schedule} onOpenSettings={() => setSettingsOpen(true)} addToast={addToast} booksFolder={settings.books_folder} libgenStatus={libgenStatus === 'ok' ? 'ok' : libgenStatus === 'warn' ? 'slow' : 'unreachable'} rmStatus={rmStatus === 'ok' ? 'ok' : 'err'} />
       <footer style={{ padding: '12px 48px', borderTop: '1px solid var(--rule)', display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
         <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
           {settings.user_name || 'Your'}'s Remarkable &middot; <em>a small daemon, printed nightly</em>
@@ -60,6 +65,7 @@ export default function App() {
         setSettings={setSettings}
         nytStatus={nytStatus}
         rmStatus={rmStatus}
+        libgenStatus={libgenStatus}
         addToast={addToast}
         onRerunWizard={() => { setSettingsOpen(false); setWizardOpen(true); }}
       />

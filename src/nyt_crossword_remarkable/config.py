@@ -12,7 +12,9 @@ from pydantic import BaseModel
 DEFAULT_CONFIG_DIR = Path.home() / ".config" / "nyt-crossword-remarkable"
 DEFAULT_CONFIG_PATH = DEFAULT_CONFIG_DIR / "config.json"
 DEFAULT_CACHE_DIR = DEFAULT_CONFIG_DIR / "cache"
+DEFAULT_BOOK_CACHE_DIR = DEFAULT_CONFIG_DIR / "book_cache"
 DEFAULT_HISTORY_PATH = DEFAULT_CONFIG_DIR / "history.json"
+DEFAULT_BOOK_HISTORY_PATH = DEFAULT_CONFIG_DIR / "book_history.json"
 
 
 class NytConfig(BaseModel):
@@ -32,6 +34,11 @@ class ScheduleConfig(BaseModel):
     timezone: str = "America/New_York"
 
 
+class LibraryConfig(BaseModel):
+    mirror: str = "libgen.li"
+    books_folder: str = "/Books"
+
+
 class ServerConfig(BaseModel):
     host: str = "0.0.0.0"
     port: int = 8742
@@ -42,6 +49,7 @@ class Config(BaseModel):
     nyt: NytConfig = NytConfig()
     remarkable: RemarkableConfig = RemarkableConfig()
     schedule: ScheduleConfig = ScheduleConfig()
+    library: LibraryConfig = LibraryConfig()
     server: ServerConfig = ServerConfig()
 
 
