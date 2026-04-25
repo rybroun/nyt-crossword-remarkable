@@ -15,7 +15,7 @@ export default function App() {
     time: '22:00', timezone: 'America/New_York', enabled: true,
   });
   const [settings, setSettings] = useState<Settings>({
-    user_name: '', remarkable_folder: '/Crosswords', file_pattern: 'NYT Crossword - {Mon DD, YYYY}',
+    user_name: '', remarkable_folder: '/Crosswords', file_pattern: '{weekday}, {Mon} {DD}, {YYYY}',
   });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [wizardOpen, setWizardOpen] = useState(false);
@@ -41,7 +41,7 @@ export default function App() {
 
   return (
     <div className="app paper-bg" style={{ position: 'relative', zIndex: 1 }}>
-      <Masthead userName={settings.user_name} nytStatus={nytStatus} rmStatus={rmStatus} onNytClick={() => { if (nytStatus !== 'ok') setWizardOpen(true); else addToast('NYT session valid'); }} onRmClick={() => { if (rmStatus !== 'ok') setWizardOpen(true); else addToast('reMarkable connected'); }} />
+      <Masthead userName={settings.user_name} nytStatus={nytStatus} rmStatus={rmStatus} onNytClick={() => { if (nytStatus !== 'ok') setSettingsOpen(true); else addToast('NYT session valid'); }} onRmClick={() => { if (rmStatus !== 'ok') setSettingsOpen(true); else addToast('reMarkable connected'); }} />
       <Dashboard schedule={schedule} onOpenSettings={() => setSettingsOpen(true)} addToast={addToast} />
       <footer style={{ padding: '12px 48px', borderTop: '1px solid var(--rule)', display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
         <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
@@ -61,6 +61,7 @@ export default function App() {
         nytStatus={nytStatus}
         rmStatus={rmStatus}
         addToast={addToast}
+        onRerunWizard={() => { setSettingsOpen(false); setWizardOpen(true); }}
       />
       {wizardOpen && (
         <Wizard

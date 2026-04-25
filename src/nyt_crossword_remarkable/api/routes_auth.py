@@ -46,7 +46,7 @@ async def remarkable_pair(req: RemarkablePairRequest):
     rmapi_path = get_rmapi_path()
     result = subprocess.run(
         [rmapi_path],
-        input=req.code + "\n",
+        input=req.code + "\nquit\n",
         capture_output=True,
         text=True,
         timeout=30,
