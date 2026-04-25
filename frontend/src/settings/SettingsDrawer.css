@@ -52,3 +52,9 @@
 .auth-callout.warn { border-left-color: var(--warn); }
 .auth-callout .row { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
 .auth-callout .desc { font-family: var(--serif); font-style: italic; font-size: 13px; color: var(--ink-2); margin-top: 4px; }
+.drawer .otp-inputs { display: flex; gap: 6px; }
+.drawer .otp-inputs input {
+  width: 40px; height: 48px; text-align: center;
+  font-family: var(--mono); font-size: 20px;
+  border: 1px solid var(--rule-strong); background: var(--paper-3); text-transform: uppercase;
+}

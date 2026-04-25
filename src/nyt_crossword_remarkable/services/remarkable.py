@@ -1,5 +1,6 @@
 """Wrapper around rmapi CLI for reMarkable cloud uploads."""
 
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -36,7 +37,8 @@ class RemarkableUploader:
 
     def _run_rmapi(self, subcommand: list[str], timeout: int = 120) -> subprocess.CompletedProcess:
         cmd = [get_rmapi_path()] + subcommand
-        return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        env = {**os.environ, "RMAPI_FORCE_SCHEMA_VERSION": "4"}
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, env=env)
 
     def upload(self, pdf_path: Path) -> None:
         """Upload a PDF to the configured reMarkable folder."""

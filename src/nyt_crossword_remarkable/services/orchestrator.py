@@ -20,8 +20,11 @@ TOKENS = {
     "YYYY-MM-DD": lambda d: d.isoformat(),
     "date": lambda d: d.isoformat(),
     "weekday": lambda d: d.strftime("%A"),
+    "Mon": lambda d: d.strftime("%b"),
     "mon": lambda d: d.strftime("%b"),
+    "DD": lambda d: d.strftime("%d"),
     "dd": lambda d: d.strftime("%d"),
+    "YYYY": lambda d: str(d.year),
     "yyyy": lambda d: str(d.year),
     "mm": lambda d: d.strftime("%m"),
 }

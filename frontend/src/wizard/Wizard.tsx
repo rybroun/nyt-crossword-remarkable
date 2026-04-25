@@ -10,7 +10,7 @@ interface Props {
 
 const STEPS = [
   { n: '01', t: 'Welcome' },
-  { n: '02', t: 'Sign in to NYT' },
+  { n: '02', t: 'Connect to NYT' },
   { n: '03', t: 'Pair your tablet' },
   { n: '04', t: 'Set the rhythm' },
 ];
@@ -19,8 +19,7 @@ const DAY_NAMES = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
 export default function Wizard({ onComplete, onSkip }: Props) {
   const [step, setStep] = useState(0);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [cookie, setCookie] = useState('');
   const [nytLoading, setNytLoading] = useState(false);
   const [nytDone, setNytDone] = useState(false);
   const [nytError, setNytError] = useState('');
@@ -37,16 +36,31 @@ export default function Wizard({ onComplete, onSkip }: Props) {
 
   const submitNyt = async () => {
     setNytLoading(true); setNytError('');
-    const res = await api.auth.nytLogin(email, password);
-    setNytLoading(false);
-    if (res.status === 'ok') { setNytDone(true); setTimeout(() => setStep(2), 500); }
-    else setNytError(res.error || 'Login failed. You can also paste your cookie manually.');
+    try {
+      const res = await api.auth.nytCookie(cookie);
+      setNytLoading(false);
+      if (res.status === 'ok') { setNytDone(true); setTimeout(() => setStep(2), 500); }
+      else setNytError('Failed to save cookie. Please try again.');
+    } catch {
+      setNytLoading(false);
+      setNytError('Failed to save cookie. Please try again.');
+    }
   };
 
   const onCodeChange = (i: number, v: string) => {
     const val = v.toUpperCase().slice(-1);
     const next = [...pairCode]; next[i] = val; setPairCode(next);
     if (val && i < 7) codeRefs.current[i + 1]?.focus();
+  };
+
+  const onCodePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const text = e.clipboardData.getData('text').replace(/\s/g, '').toUpperCase().slice(0, 8);
+    const next = [...pairCode];
+    for (let j = 0; j < text.length; j++) next[j] = text[j];
+    setPairCode(next);
+    const focusIdx = Math.min(text.length, 7);
+    codeRefs.current[focusIdx]?.focus();
   };
 
   const onCodeKeyDown = (i: number, e: React.KeyboardEvent) => {
@@ -63,7 +77,7 @@ export default function Wizard({ onComplete, onSkip }: Props) {
 
   const finish = async () => {
     await api.schedule.update({ days: days.map(d => DAY_NAMES[d]), time, timezone: tz, enabled: true });
-    await api.settings.update({ user_name: userName, remarkable_folder: folder, file_pattern: 'NYT Crossword - {Mon DD, YYYY}' });
+    await api.settings.update({ user_name: userName, remarkable_folder: folder, file_pattern: '{weekday}, {Mon} {DD}, {YYYY}' });
     onComplete();
   };
 
@@ -95,29 +109,30 @@ export default function Wizard({ onComplete, onSkip }: Props) {
           )}
           {step === 1 && (
             <>
-              <h1>Sign in to <em>NYT</em></h1>
+              <h1>Connect to <em>NYT</em></h1>
               {!nytDone ? (
                 <>
-                  <div className="field"><span className="lbl">Email</span><input value={email} onChange={e => setEmail(e.target.value)} /></div>
-                  <div className="field"><span className="lbl">Password</span><input type="password" value={password} onChange={e => setPassword(e.target.value)} /></div>
+                  <p className="lede">Go to <strong>nytimes.com/crosswords</strong> and log in, then press <strong>Cmd+Option+I</strong> to open DevTools. Click the <strong>Application</strong> tab, expand <strong>Cookies</strong> in the sidebar, select <strong>https://www.nytimes.com</strong>, find the row named <strong>NYT-S</strong>, and double-click its <strong>Value</strong> to copy it.</p>
+                  <div className="field"><span className="lbl">NYT-S cookie</span><input value={cookie} onChange={e => setCookie(e.target.value)} placeholder="Paste your NYT-S cookie value" /></div>
                   {nytError && <p style={{ color: 'var(--err)', fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14 }}>{nytError}</p>}
                 </>
               ) : (
-                <p style={{ color: 'var(--ok)', fontFamily: 'var(--serif)' }}>{'\u2713'} Signed in. Cookie captured.</p>
+                <p style={{ color: 'var(--ok)', fontFamily: 'var(--serif)' }}>{'\u2713'} Cookie saved.</p>
               )}
             </>
           )}
           {step === 2 && (
             <>
               <h1>Pair your <em>tablet</em></h1>
-              <p className="lede">Go to <strong>my.remarkable.com/connect/desktop</strong>, get the 8-character code, and enter it below.</p>
+              <p className="lede">Go to <strong>my.remarkable.com/device/browser/connect</strong>, get the 8-character code, and enter it below.</p>
               {!pairDone ? (
                 <>
                   <div className="otp-inputs">
                     {pairCode.map((c, i) => (
                       <input key={i} ref={el => { codeRefs.current[i] = el; }} value={c} maxLength={1}
                         onChange={e => onCodeChange(i, e.target.value)}
-                        onKeyDown={e => onCodeKeyDown(i, e)} />
+                        onKeyDown={e => onCodeKeyDown(i, e)}
+                        onPaste={onCodePaste} />
                     ))}
                   </div>
                   {pairError && <p style={{ color: 'var(--err)', fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14 }}>{pairError}</p>}
@@ -151,7 +166,7 @@ export default function Wizard({ onComplete, onSkip }: Props) {
           <div style={{ display: 'flex', gap: 8 }}>
             {step > 0 && <button className="btn ghost" onClick={() => setStep(step - 1)}>Back</button>}
             {step === 0 && <button className="btn primary" onClick={() => setStep(1)}>Begin</button>}
-            {step === 1 && !nytDone && <button className="btn primary" onClick={submitNyt} disabled={!email || !password || nytLoading}>{nytLoading ? 'Signing in...' : 'Sign in'}</button>}
+            {step === 1 && !nytDone && <button className="btn primary" onClick={submitNyt} disabled={!cookie || nytLoading}>{nytLoading ? 'Saving...' : 'Save cookie'}</button>}
             {step === 2 && !pairDone && <button className="btn primary" onClick={submitPair} disabled={!pairCode.every(c => c) || pairLoading}>{pairLoading ? 'Pairing...' : 'Exchange code'}</button>}
             {step === 3 && <button className="btn primary" onClick={finish}>Finish setup &rarr;</button>}
           </div>
