@@ -13,13 +13,14 @@ interface Props {
   setSettings: (s: Settings) => void;
   nytStatus: Status;
   rmStatus: Status;
+  libgenStatus: Status;
   addToast: (msg: string) => void;
   onRerunWizard: () => void;
 }
 
 const DAY_NAMES = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
-export default function SettingsDrawer({ open, onClose, schedule, setSchedule, settings, setSettings, nytStatus, rmStatus, addToast, onRerunWizard }: Props) {
+export default function SettingsDrawer({ open, onClose, schedule, setSchedule, settings, setSettings, nytStatus, rmStatus, libgenStatus, addToast, onRerunWizard }: Props) {
   const scheduleDaysAsNumbers = schedule.days.map(d => DAY_NAMES.indexOf(d));
 
   const [cookie, setCookie] = useState('');
@@ -166,6 +167,14 @@ export default function SettingsDrawer({ open, onClose, schedule, setSchedule, s
             }} />
             <div className="hint">Tokens: {'{date}'} {'{weekday}'} {'{mon}'} {'{dd}'} {'{yyyy}'} {'{Mon DD, YYYY}'}</div>
           </div>
+          <div className="field">
+            <span className="lbl">Books folder</span>
+            <input value={settings.books_folder} onChange={e => {
+              const s = { ...settings, books_folder: e.target.value };
+              setSettings(s); api.settings.update(s);
+            }} />
+            <div className="hint">Where epubs from the Library land. Kept separate from puzzles.</div>
+          </div>
         </div>
 
         <div className="settings-section">
@@ -188,6 +197,39 @@ export default function SettingsDrawer({ open, onClose, schedule, setSchedule, s
               <button className="btn" onClick={submitCookie} disabled={!cookie || cookieLoading}>{cookieLoading ? 'Saving...' : 'Save cookie'}</button>
             </>
           )}
+        </div>
+
+        <div className="settings-section">
+          <h3>Library mirror</h3>
+          <div className="sub">The daemon fetches epubs through a public mirror.</div>
+          <div className={`auth-callout ${libgenStatus}`}>
+            <div className="row">
+              <span>Mirror endpoint</span>
+              <span>{libgenStatus === 'ok' ? '\u2713 Reachable' : libgenStatus === 'warn' ? '\u26A0 Slow' : '\u2715 Unreachable'}</span>
+            </div>
+            <div className="desc">{libgenStatus === 'ok' ? `${settings.libgen_mirror} reachable.` : libgenStatus === 'warn' ? 'Mirror responding slowly.' : 'All mirrors timed out. Try resetting.'}</div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+            <button className="btn" onClick={async () => {
+              addToast('Resetting mirror...');
+              try {
+                const res = await api.library.resetMirror();
+                addToast(res.status === 'ok' ? `Mirror reachable · ${res.ping_ms}ms` : 'Mirror still unreachable');
+              } catch { addToast('Reset failed'); }
+            }}>Reset mirror</button>
+          </div>
+          <div className="field">
+            <span className="lbl">Preferred mirror</span>
+            <select value={settings.libgen_mirror} onChange={e => {
+              const s = { ...settings, libgen_mirror: e.target.value };
+              setSettings(s); api.settings.update(s);
+            }}>
+              <option value="libgen.rs">libgen.rs</option>
+              <option value="libgen.li">libgen.li</option>
+              <option value="libgen.is">libgen.is</option>
+            </select>
+            <div className="hint">If the chosen mirror is down, the daemon falls back automatically.</div>
+          </div>
         </div>
 
         <div className="settings-section" style={{ borderBottom: 'none' }}>

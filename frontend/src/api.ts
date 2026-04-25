@@ -1,4 +1,4 @@
-import type { HistoryRecord, ScheduleConfig, Settings, FetchState, HealthNyt, HealthRemarkable } from './types';
+import type { HistoryRecord, ScheduleConfig, Settings, FetchState, HealthNyt, HealthRemarkable, HealthLibgen, BookResult, BookSendRecord } from './types';
 
 const BASE = '/api';
 
@@ -32,6 +32,7 @@ export const api = {
   health: {
     nyt: () => get<HealthNyt>('/health/nyt'),
     remarkable: () => get<HealthRemarkable>('/health/remarkable'),
+    libgen: () => get<HealthLibgen>('/health/libgen'),
   },
   history: (year: number) => get<HistoryRecord[]>(`/history?year=${year}`),
   fetch: {
@@ -54,5 +55,14 @@ export const api = {
       post<{ status: string }>('/auth/nyt/cookie', { cookie }),
     remarkablePair: (code: string) =>
       post<{ status: string; error?: string }>('/auth/remarkable/pair', { code }),
+  },
+  library: {
+    search: (query: string, format: string) =>
+      post<{ status: string; results: BookResult[]; error?: string }>('/library/search', { query, format }),
+    send: (book: BookResult) =>
+      post<{ status: string; title?: string }>('/library/send', { book }),
+    recent: () => get<BookSendRecord[]>('/library/recent'),
+    resetMirror: () =>
+      post<{ status: string; mirror: string; ping_ms: number | null }>('/library/reset-mirror', {}),
   },
 };

@@ -12,6 +12,7 @@ from nyt_crossword_remarkable.api.routes_fetch import router as fetch_router
 from nyt_crossword_remarkable.api.routes_schedule import router as schedule_router
 from nyt_crossword_remarkable.api.routes_settings import router as settings_router
 from nyt_crossword_remarkable.api.routes_auth import router as auth_router
+from nyt_crossword_remarkable.api.routes_library import router as library_router
 from nyt_crossword_remarkable.config import load_config
 from nyt_crossword_remarkable.services.scheduler import build_cron_trigger, scheduled_fetch
 
@@ -27,6 +28,7 @@ def create_app() -> FastAPI:
     app.include_router(schedule_router)
     app.include_router(settings_router)
     app.include_router(auth_router)
+    app.include_router(library_router)
 
     # Serve React frontend static files
     frontend_dir = Path(__file__).parent / "frontend" / "dist"

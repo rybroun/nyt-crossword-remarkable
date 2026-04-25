@@ -21,6 +21,8 @@ export interface Settings {
   user_name: string;
   remarkable_folder: string;
   file_pattern: string;
+  books_folder: string;
+  libgen_mirror: string;
 }
 
 export interface FetchState {
@@ -41,3 +43,37 @@ export interface HealthRemarkable {
 }
 
 export type CellState = 'ok' | 'err' | 'none' | 'future-scheduled' | 'future';
+
+export interface BookResult {
+  id: string;
+  title: string;
+  author: string;
+  publisher: string;
+  year: string;
+  pages: string;
+  language: string;
+  size: string;
+  format: string;
+  isbn: string;
+  md5: string;
+  mirror_url: string;
+  sources: number;
+}
+
+export interface BookSendRecord {
+  book_id: string;
+  title: string;
+  author: string;
+  format: string;
+  size: string;
+  folder: string;
+  sent_at: string;
+  status: string;
+  error?: string;
+}
+
+export interface HealthLibgen {
+  status: 'ok' | 'slow' | 'unreachable';
+  mirror: string;
+  ping_ms: number | null;
+}
