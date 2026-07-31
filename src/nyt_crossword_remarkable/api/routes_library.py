@@ -39,7 +39,10 @@ async def search_books(req: SearchRequest):
 
 @router.post("/send")
 async def send_book(req: SendRequest):
-    if fetch_state.phase != FetchPhase.IDLE:
+    # DONE means a previous job finished, not that one is running — nothing
+    # clears it after a crossword fetch, so treating it as busy would lock
+    # book sends out until the next restart. Matches the guard in routes_fetch.
+    if fetch_state.phase not in (FetchPhase.IDLE, FetchPhase.DONE):
         return {
             "status": "already_running",
             "phase": fetch_state.phase.value,

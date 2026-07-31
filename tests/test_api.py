@@ -165,3 +165,35 @@ class TestAuthRoutes:
                 mock_sub.run.return_value = MagicMock(returncode=0, stdout="", stderr="")
                 r = client.post("/api/auth/remarkable/pair", json={"code": "abcd1234"})
         assert r.status_code == 200
+
+
+class TestLibraryRoutes:
+    """fetch_state is shared between crossword fetches and book sends. A
+    finished fetch parks it at DONE and nothing resets it, so a strict
+    "must be IDLE" guard locks book sends out until the server restarts."""
+
+    BOOK = {"id": "1", "title": "Siddhartha", "author": "Hesse, Hermann"}
+
+    def teardown_method(self):
+        fetch_state.reset()
+
+    def test_send_book_allowed_after_a_completed_crossword_fetch(self, client):
+        fetch_state.reset()
+        fetch_state.set_phase(FetchPhase.DONE, 100)
+
+        with patch("nyt_crossword_remarkable.api.routes_library.BookOrchestrator"):
+            r = client.post("/api/library/send", json={"book": self.BOOK})
+
+        assert r.status_code == 200
+        assert r.json()["status"] != "already_running", (
+            "a completed crossword fetch permanently blocks book sends"
+        )
+
+    def test_send_book_rejected_while_a_fetch_is_in_flight(self, client):
+        fetch_state.reset()
+        fetch_state.set_phase(FetchPhase.UPLOAD, 50)
+
+        with patch("nyt_crossword_remarkable.api.routes_library.BookOrchestrator"):
+            r = client.post("/api/library/send", json={"book": self.BOOK})
+
+        assert r.json()["status"] == "already_running"

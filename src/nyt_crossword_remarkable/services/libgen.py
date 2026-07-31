@@ -1,5 +1,6 @@
 """Search and download ebooks from Library Genesis mirrors."""
 
+import asyncio
 import time
 from pathlib import Path
 from typing import Optional
@@ -11,6 +12,9 @@ from nyt_crossword_remarkable.config import DEFAULT_BOOK_CACHE_DIR
 
 
 MIRRORS = ["libgen.rs", "libgen.li", "libgen.is"]
+
+# libgen_api_enhanced sets no timeout of its own, so we impose one.
+SEARCH_TIMEOUT = 45.0
 
 
 class BookResult(BaseModel):
@@ -54,9 +58,18 @@ class LibgenService:
 
             # LibgenSearch expects just the TLD suffix (e.g. "rs", "li", "is")
             tld = self.mirror.replace("libgen.", "").rstrip(".")
-            searcher = LibgenSearch(mirror=tld)
-            # Search by title first, then by author
-            title_results = searcher.search_title(query)
+
+            def _blocking_search():
+                # Search by title first, then by author
+                return LibgenSearch(mirror=tld).search_title(query)
+
+            # libgen_api_enhanced is synchronous (requests-based), so it runs
+            # off the event loop. Called inline, one unresponsive mirror parks
+            # the loop thread and every other request — /api/health and the
+            # nightly crossword delivery included — hangs with it.
+            title_results = await asyncio.wait_for(
+                asyncio.to_thread(_blocking_search), timeout=SEARCH_TIMEOUT
+            )
 
             results = []
             seen_md5 = set()
@@ -104,6 +117,11 @@ class LibgenService:
 
         except ImportError:
             raise LibgenSearchError("libgen-api-enhanced is not installed")
+        except asyncio.TimeoutError:
+            raise LibgenSearchError(
+                f"Search timed out after {SEARCH_TIMEOUT:.0f}s — "
+                f"{self.mirror} is not responding"
+            )
         except Exception as e:
             raise LibgenSearchError(f"Search failed: {e}")
 

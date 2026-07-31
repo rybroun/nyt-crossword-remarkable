@@ -34,6 +34,8 @@ reachable from Ryan's phone over Tailscale.
 
 | Item | Shipped | Notes |
 |---|---|---|
+| Fix Libgen search freezing the whole server | 2026-07-31 | `LibgenService.search()` ran the synchronous `libgen_api_enhanced` call directly on the event loop with no timeout, so one unresponsive mirror hung every endpoint — `/api/health` included — until a restart. Reproduced live (server wedged at 0% CPU with the mirror socket still open). Now runs via `asyncio.to_thread` under a 45s timeout. First tests for the Libgen feature, which shipped with none. |
+| Fix book sends blocked after any crossword fetch | 2026-07-31 | `routes_library.send_book` required `fetch_state` to be `IDLE`, but a finished crossword fetch parks it at `DONE` and nothing resets it — so "send to tablet" silently returned `already_running` until the next restart. Now matches the guard in `routes_fetch`. |
 | Fix reMarkable cloud sync (rmapi v0.0.32 → v0.0.34) | 2026-07-31 | Root cause of delivery failure. v0.0.32 failed every sync with `mirror was not ok: status 400`; the cloud API changed. v0.0.34 adds the `.docSchema` extension in Mirror/BuildTree. Verified end-to-end: `Friday Jul 31, 2026` delivered to `/Crosswords`, `/api/health/remarkable` now `ok`. |
 | Libgen search and send-to-tablet | 2026-04-25 | On the feature branch, not yet on `main`. |
 | Web dashboard with activity grid and click-to-fetch | 2026-04 | |
