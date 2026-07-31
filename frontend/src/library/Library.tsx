@@ -46,6 +46,11 @@ export default function Library({ booksFolder, fetchState, addToast, libgenStatu
     runSearch(query);
   };
 
+  // 'done' means the last job finished, not that one is running. Nothing
+  // clears it after a crossword fetch, so treating it as busy leaves every
+  // Send button dead until the server restarts.
+  const busy = fetchState.phase !== 'idle' && fetchState.phase !== 'done';
+
   const visible = useMemo(() => {
     if (format === 'any') return results;
     return results.filter(b => b.format === format);
@@ -70,6 +75,31 @@ export default function Library({ booksFolder, fetchState, addToast, libgenStatu
     } catch {
       addToast('Failed to start send');
     }
+  };
+
+  // Rebuild a sendable book from a history row. Records written before md5 and
+  // mirror_url were stored have nothing to download from, so say that plainly
+  // rather than showing a "Resending…" toast over a no-op.
+  const handleResend = (r: BookSendRecord) => {
+    if (!r.mirror_url) {
+      addToast(`No download source saved for "${r.title}" — search for it again`);
+      return;
+    }
+    handleSend({
+      id: r.book_id,
+      title: r.title,
+      author: r.author,
+      publisher: '',
+      year: '',
+      pages: '',
+      language: '',
+      size: r.size,
+      format: r.format,
+      isbn: '',
+      md5: r.md5,
+      mirror_url: r.mirror_url,
+      sources: 1,
+    });
   };
 
   return (
@@ -159,7 +189,7 @@ export default function Library({ booksFolder, fetchState, addToast, libgenStatu
             {visible.map(b => (
               <BookRow key={b.id}
                        book={b}
-                       sending={fetchState.phase !== 'idle'}
+                       sending={busy}
                        alreadySent={recentlySent.some(r => r.book_id === b.id)}
                        onSend={() => handleSend(b)} />
             ))}
@@ -186,7 +216,8 @@ export default function Library({ booksFolder, fetchState, addToast, libgenStatu
                 <div className="recent-fmt"><FormatTag fmt={r.format} /></div>
                 <div className="recent-when">{r.sent_at}</div>
                 <button className="recent-action"
-                        onClick={() => addToast(`Resending ${r.title}…`)}>
+                        disabled={busy}
+                        onClick={() => handleResend(r)}>
                   Resend
                 </button>
               </li>

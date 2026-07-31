@@ -46,6 +46,8 @@ class BookOrchestrator:
             folder=self._books_folder,
             sent_at=datetime.now(),
             status="success",
+            md5=book.md5,
+            mirror_url=book.mirror_url,
         )
 
         try:

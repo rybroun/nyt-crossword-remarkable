@@ -70,6 +70,8 @@ export interface BookSendRecord {
   sent_at: string;
   status: string;
   error?: string;
+  md5: string;
+  mirror_url: string;
 }
 
 export interface HealthLibgen {

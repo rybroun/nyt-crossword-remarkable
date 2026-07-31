@@ -20,6 +20,11 @@ class BookSendRecord(BaseModel):
     sent_at: datetime
     status: str  # "success" or "error"
     error: Optional[str] = None
+    # Where the file came from. Needed to resend — title and author alone are
+    # not enough to download anything. Default empty so records written before
+    # these fields existed still load.
+    md5: str = ""
+    mirror_url: str = ""
 
 
 class BookHistory:
