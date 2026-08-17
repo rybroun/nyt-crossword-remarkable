@@ -3,9 +3,14 @@ import threading
 import time
 from unittest.mock import patch
 
+import httpx
 import pytest
+import respx
 
 from nyt_crossword_remarkable.services.libgen import (
+    BROWSER_UA,
+    BookResult,
+    LibgenDownloadError,
     LibgenSearchError,
     LibgenService,
 )
@@ -101,3 +106,82 @@ class TestLibgenSearchConcurrency:
 
         assert elapsed < 2, f"search hung for {elapsed:.1f}s instead of timing out"
         assert "timed out" in str(excinfo.value).lower()
+
+
+class TestBrowserUserAgent:
+    """libgen.li answers clients that identify as python-requests or
+    python-httpx with a 641-byte empty shell under HTTP 200 — no results table
+    and no download link. Every request we make must look like a browser or the
+    feature silently returns nothing."""
+
+    @pytest.mark.asyncio
+    @respx.mock
+    async def test_resolve_download_url_sends_a_browser_user_agent(self):
+        route = respx.get("https://libgen.li/ads.php").mock(
+            return_value=httpx.Response(
+                200, text='<a href="get.php?md5=abc&key=1"><h2>GET</h2></a>'
+            )
+        )
+        service = LibgenService(mirror="libgen.li")
+        book = BookResult(
+            id="1",
+            title="Siddhartha",
+            author="Hesse",
+            md5="abc",
+            mirror_url="https://libgen.li/ads.php?md5=abc",
+        )
+
+        await service.resolve_download_url(book)
+
+        sent = route.calls[0].request
+        assert sent.headers["user-agent"] == BROWSER_UA
+
+    @pytest.mark.asyncio
+    @respx.mock
+    async def test_download_sends_a_browser_user_agent(self, tmp_path):
+        respx.get("https://libgen.li/ads.php").mock(
+            return_value=httpx.Response(
+                200, text='<a href="get.php?md5=abc&key=1"><h2>GET</h2></a>'
+            )
+        )
+        route = respx.get("https://libgen.li/get.php").mock(
+            return_value=httpx.Response(200, content=b"PK\x03\x04epub-bytes")
+        )
+        service = LibgenService(mirror="libgen.li")
+        book = BookResult(
+            id="1",
+            title="Siddhartha",
+            author="Hesse",
+            format="epub",
+            md5="abc",
+            mirror_url="https://libgen.li/ads.php?md5=abc",
+        )
+
+        await service.download(book, cache_dir=tmp_path)
+
+        sent = route.calls[0].request
+        assert sent.headers["user-agent"] == BROWSER_UA
+
+    @pytest.mark.asyncio
+    @respx.mock
+    async def test_check_mirror_sends_a_browser_user_agent(self):
+        route = respx.get("https://libgen.li").mock(
+            return_value=httpx.Response(200, text="ok")
+        )
+        service = LibgenService(mirror="libgen.li")
+
+        await service.check_mirror()
+
+        sent = route.calls[0].request
+        assert sent.headers["user-agent"] == BROWSER_UA
+
+    def test_requests_default_user_agent_is_overridden_for_the_search_library(self):
+        """libgen_api_enhanced calls requests.get() with no headers and exposes
+        no way to pass any, so the only lever is the library-wide default."""
+        import requests.utils
+
+        from nyt_crossword_remarkable.services.libgen import force_browser_ua_for_requests
+
+        force_browser_ua_for_requests()
+
+        assert requests.utils.default_headers()["User-Agent"] == BROWSER_UA

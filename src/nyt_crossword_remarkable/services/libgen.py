@@ -16,6 +16,31 @@ MIRRORS = ["libgen.rs", "libgen.li", "libgen.is"]
 # libgen_api_enhanced sets no timeout of its own, so we impose one.
 SEARCH_TIMEOUT = 45.0
 
+# The mirrors answer clients that identify as python-requests or python-httpx
+# with a ~640-byte empty page shell — under HTTP 200, with no results table and
+# no download link. Nothing raises; searches just come back empty and downloads
+# report "Could not find download link". Every request has to look like a
+# browser.
+BROWSER_UA = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+)
+BROWSER_HEADERS = {"User-Agent": BROWSER_UA}
+
+
+def force_browser_ua_for_requests() -> None:
+    """Make the `requests`-based search library present a browser User-Agent.
+
+    libgen_api_enhanced calls `requests.get()` with no headers and offers no
+    session or header hook, so overriding the library-wide default is the only
+    lever available. `requests.utils.default_headers()` resolves
+    `default_user_agent` at call time, so patching it here takes effect for
+    every request the search library subsequently makes.
+    """
+    import requests.utils
+
+    requests.utils.default_user_agent = lambda name="python-requests": BROWSER_UA
+
 
 class BookResult(BaseModel):
     id: str
@@ -60,6 +85,9 @@ class LibgenService:
             tld = self.mirror.replace("libgen.", "").rstrip(".")
 
             def _blocking_search():
+                # Without this the mirror returns an empty shell and the
+                # library reports "No results table found on search page".
+                force_browser_ua_for_requests()
                 # Search by title first, then by author
                 return LibgenSearch(mirror=tld).search_title(query)
 
@@ -130,7 +158,9 @@ class LibgenService:
         if not book.mirror_url:
             raise LibgenDownloadError("No mirror URL available")
 
-        async with httpx.AsyncClient(follow_redirects=True, timeout=30) as client:
+        async with httpx.AsyncClient(
+            follow_redirects=True, timeout=30, headers=BROWSER_HEADERS
+        ) as client:
             resp = await client.get(book.mirror_url)
             if resp.status_code != 200:
                 raise LibgenDownloadError(f"Mirror page returned {resp.status_code}")
@@ -172,7 +202,9 @@ class LibgenService:
 
         download_url = await self.resolve_download_url(book)
 
-        async with httpx.AsyncClient(follow_redirects=True, timeout=120) as client:
+        async with httpx.AsyncClient(
+            follow_redirects=True, timeout=120, headers=BROWSER_HEADERS
+        ) as client:
             resp = await client.get(download_url)
             if resp.status_code != 200:
                 raise LibgenDownloadError(f"Download failed: HTTP {resp.status_code}")
@@ -185,7 +217,9 @@ class LibgenService:
         """Check if the configured mirror is reachable."""
         try:
             start = time.monotonic()
-            async with httpx.AsyncClient(timeout=10) as client:
+            async with httpx.AsyncClient(
+                timeout=10, headers=BROWSER_HEADERS
+            ) as client:
                 resp = await client.get(f"https://{self.mirror}")
             elapsed_ms = int((time.monotonic() - start) * 1000)
 
