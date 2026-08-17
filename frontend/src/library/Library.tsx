@@ -18,6 +18,7 @@ export default function Library({ booksFolder, fetchState, addToast, libgenStatu
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [format, setFormat] = useState('any');
+  const [mode, setMode] = useState('all');
   const [recentlySent, setRecentlySent] = useState<BookSendRecord[]>([]);
 
   // Load recently sent on first render
@@ -27,12 +28,14 @@ export default function Library({ booksFolder, fetchState, addToast, libgenStatu
     api.library.recent().then(setRecentlySent).catch(() => {});
   }
 
-  const runSearch = async (q: string) => {
+  // modeOverride lets a chip click re-run immediately, without waiting for
+  // setMode's state update to land.
+  const runSearch = async (q: string, modeOverride?: string) => {
     if (!q.trim()) return;
     setLoading(true);
     setHasSearched(true);
     try {
-      const res = await api.library.search(q, format);
+      const res = await api.library.search(q, format, modeOverride ?? mode);
       setResults(res.results || []);
     } catch {
       addToast('Search failed');
@@ -131,6 +134,22 @@ export default function Library({ booksFolder, fetchState, addToast, libgenStatu
       </form>
 
       <div className="lib-controls">
+        <div className="lib-format-chips" role="tablist" aria-label="Search field">
+          {[
+            { id: 'all', label: 'All fields' },
+            { id: 'title', label: 'Title' },
+            { id: 'author', label: 'Author' },
+          ].map(m => (
+            <button key={m.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={mode === m.id}
+                    className={`lib-chip ${mode === m.id ? 'on' : ''}`}
+                    onClick={() => { setMode(m.id); if (hasSearched && query.trim()) runSearch(query, m.id); }}>
+              {m.label}
+            </button>
+          ))}
+        </div>
         <div className="lib-format-chips" role="tablist" aria-label="Format filter">
           {[
             { id: 'any', label: 'Any format' },

@@ -20,6 +20,7 @@ router = APIRouter(prefix="/api/library", tags=["library"])
 class SearchRequest(BaseModel):
     query: str
     format: str = "any"
+    mode: str = "all"  # "all" | "title" | "author"
 
 
 class SendRequest(BaseModel):
@@ -31,7 +32,7 @@ async def search_books(req: SearchRequest):
     config = load_config()
     service = LibgenService(mirror=config.library.mirror)
     try:
-        results = await service.search(req.query, req.format)
+        results = await service.search(req.query, req.format, mode=req.mode)
         return {"status": "ok", "results": [r.model_dump() for r in results]}
     except Exception as e:
         return {"status": "error", "error": str(e), "results": []}

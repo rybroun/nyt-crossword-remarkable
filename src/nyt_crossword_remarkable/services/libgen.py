@@ -76,8 +76,15 @@ class LibgenService:
     def __init__(self, mirror: str = "libgen.rs"):
         self.mirror = mirror
 
-    async def search(self, query: str, format_filter: str = "any") -> list[BookResult]:
-        """Search libgen for books matching the query."""
+    async def search(
+        self, query: str, format_filter: str = "any", mode: str = "all"
+    ) -> list[BookResult]:
+        """Search libgen for books matching the query.
+
+        `mode` picks which columns the mirror searches: "title", "author", or
+        "all" (title, author, series, year, publisher, ISBN). Anything
+        unrecognised widens to "all" rather than silently finding nothing.
+        """
         try:
             from libgen_api_enhanced import LibgenSearch
 
@@ -88,8 +95,12 @@ class LibgenService:
                 # Without this the mirror returns an empty shell and the
                 # library reports "No results table found on search page".
                 force_browser_ua_for_requests()
-                # Search by title first, then by author
-                return LibgenSearch(mirror=tld).search_title(query)
+                searcher = LibgenSearch(mirror=tld)
+                if mode == "title":
+                    return searcher.search_title(query)
+                if mode == "author":
+                    return searcher.search_author(query)
+                return searcher.search_default(query)
 
             # libgen_api_enhanced is synchronous (requests-based), so it runs
             # off the event loop. Called inline, one unresponsive mirror parks

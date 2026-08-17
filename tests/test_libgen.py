@@ -44,6 +44,10 @@ def _searcher_sleeping(seconds: float):
             time.sleep(seconds)
             return [_FakeItem()]
 
+        # search() defaults to mode="all", which routes here.
+        search_default = search_title
+        search_author = search_title
+
     return _FakeSearch
 
 
@@ -91,6 +95,10 @@ class TestLibgenSearchConcurrency:
             def search_title(self, query):
                 released.wait(timeout=10)
                 return []
+
+            # search() defaults to mode="all", which routes here.
+            search_default = search_title
+            search_author = search_title
 
         try:
             with patch("libgen_api_enhanced.LibgenSearch", _HangingSearch):
@@ -185,3 +193,66 @@ class TestBrowserUserAgent:
         force_browser_ua_for_requests()
 
         assert requests.utils.default_headers()["User-Agent"] == BROWSER_UA
+
+
+class TestSearchMode:
+    """The search box has always promised 'title, author, or ISBN' but only
+    ever called search_title. Mode selects which of the library's search
+    methods runs."""
+
+    def _recording_searcher(self, calls):
+        class _FakeSearch:
+            def __init__(self, mirror=None):
+                self.mirror = mirror
+
+            def search_title(self, query):
+                calls.append(("title", query))
+                return [_FakeItem()]
+
+            def search_author(self, query):
+                calls.append(("author", query))
+                return [_FakeItem()]
+
+            def search_default(self, query):
+                calls.append(("default", query))
+                return [_FakeItem()]
+
+        return _FakeSearch
+
+    @pytest.mark.asyncio
+    async def test_author_mode_searches_authors(self):
+        calls = []
+        service = LibgenService(mirror="libgen.li")
+        with patch("libgen_api_enhanced.LibgenSearch", self._recording_searcher(calls)):
+            await service.search("emily wilson", "any", mode="author")
+
+        assert calls == [("author", "emily wilson")]
+
+    @pytest.mark.asyncio
+    async def test_title_mode_searches_titles(self):
+        calls = []
+        service = LibgenService(mirror="libgen.li")
+        with patch("libgen_api_enhanced.LibgenSearch", self._recording_searcher(calls)):
+            await service.search("odyssey", "any", mode="title")
+
+        assert calls == [("title", "odyssey")]
+
+    @pytest.mark.asyncio
+    async def test_default_mode_searches_every_column(self):
+        """'all' is the default, so the placeholder's promise holds without
+        the user touching anything."""
+        calls = []
+        service = LibgenService(mirror="libgen.li")
+        with patch("libgen_api_enhanced.LibgenSearch", self._recording_searcher(calls)):
+            await service.search("emily wilson", "any")
+
+        assert calls == [("default", "emily wilson")]
+
+    @pytest.mark.asyncio
+    async def test_an_unknown_mode_falls_back_to_searching_everything(self):
+        calls = []
+        service = LibgenService(mirror="libgen.li")
+        with patch("libgen_api_enhanced.LibgenSearch", self._recording_searcher(calls)):
+            await service.search("homer", "any", mode="nonsense")
+
+        assert calls == [("default", "homer")]

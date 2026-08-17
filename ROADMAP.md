@@ -1,6 +1,6 @@
 # Roadmap — remarkable_server
 
-**Updated:** 2026-08-16 · **Lead:** unassigned
+**Updated:** 2026-08-17 · **Lead:** unassigned
 
 Nightly NYT crossword delivery to a reMarkable tablet, plus Libgen send-to-tablet. Feature
 work is finished but stranded on a branch; the next milestone is getting it onto `main` and
@@ -34,6 +34,7 @@ reachable from Ryan's phone over Tailscale.
 
 | Item | Shipped | Notes |
 |---|---|---|
+| Search by author (and every field) | 2026-08-17 | The search box always promised "title, author, or ISBN" but only ever called `search_title` — author queries found nothing. `search()` takes a `mode` of `all`/`title`/`author`, mapping to the library's `search_default`/`search_title`/`search_author`, with chips in the UI. Defaults to `all`, so the placeholder is finally true without touching anything. |
 | Fix Libgen search and download blocked by User-Agent | 2026-08-16 | The mirrors began answering `python-requests`/`python-httpx` clients with a ~640-byte empty page under HTTP 200 — no results table, no download link, nothing raised. Search silently returned zero results for every query and downloads failed with "Could not find download link". All our httpx calls now send a browser UA, and `force_browser_ua_for_requests()` overrides the default for `libgen_api_enhanced`, which calls `requests.get()` with no header hook. Verified live: 4 results for "siddhartha hesse" and an uncached book downloaded and delivered end-to-end. |
 | Fix Send buttons dying after any crossword fetch | 2026-07-31 | `Library.tsx` disabled every Send button whenever `fetchState.phase !== 'idle'`, and a finished crossword fetch parks it at `done` forever. Tapping Send issued no request at all — confirmed in the access log, which shows many searches and no sends. Frontend twin of the `routes_library` guard; the backend fix alone was invisible without it. |
 | Fix "Resend" doing nothing | 2026-07-31 | The button only fired a `Resending…` toast — it never called the API. `BookSendRecord` also lacked `md5`/`mirror_url`, so a resend had nothing to download from; both are now recorded and the button actually sends. Rows written before this show an honest "no source saved" message instead of a fake toast. |

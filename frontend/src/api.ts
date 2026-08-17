@@ -57,8 +57,8 @@ export const api = {
       post<{ status: string; error?: string }>('/auth/remarkable/pair', { code }),
   },
   library: {
-    search: (query: string, format: string) =>
-      post<{ status: string; results: BookResult[]; error?: string }>('/library/search', { query, format }),
+    search: (query: string, format: string, mode: string = 'all') =>
+      post<{ status: string; results: BookResult[]; error?: string }>('/library/search', { query, format, mode }),
     send: (book: BookResult) =>
       post<{ status: string; title?: string }>('/library/send', { book }),
     recent: () => get<BookSendRecord[]>('/library/recent'),
