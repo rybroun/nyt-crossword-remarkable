@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from nyt_crossword_remarkable.config import load_config
 from nyt_crossword_remarkable.services.nyt_fetcher import NytFetcher
 from nyt_crossword_remarkable.services.remarkable import RemarkableUploader, RmapiNotFoundError
+from nyt_crossword_remarkable.services.libgen import LibgenService
 
 router = APIRouter(prefix="/api/health", tags=["health"])
 
@@ -33,3 +34,10 @@ async def health_remarkable():
         return {"status": "ok" if connected else "disconnected", "folder": config.remarkable.folder}
     except RmapiNotFoundError:
         return {"status": "not_installed", "folder": config.remarkable.folder}
+
+@router.get("/libgen")
+async def health_libgen():
+    config = load_config()
+    service = LibgenService(mirror=config.library.mirror)
+    result = await service.check_mirror()
+    return {"status": result.status, "mirror": result.mirror, "ping_ms": result.ping_ms}

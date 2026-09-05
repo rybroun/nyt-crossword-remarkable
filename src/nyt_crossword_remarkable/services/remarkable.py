@@ -41,8 +41,8 @@ class RemarkableUploader:
         return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, env=env)
 
     def upload(self, pdf_path: Path) -> None:
-        """Upload a PDF to the configured reMarkable folder."""
-        result = self._run_rmapi(["put", str(pdf_path), self.folder])
+        """Upload a file to the configured reMarkable folder."""
+        result = self._run_rmapi(["put", "--force", str(pdf_path), self.folder])
 
         if result.returncode != 0:
             stderr_lower = result.stderr.lower()
@@ -82,6 +82,20 @@ class RemarkableUploader:
         target = self.folder.lstrip("/")
         if target not in folders:
             self.create_folder(self.folder)
+
+    def verify_file(self, filename: str) -> bool:
+        """Check if a file exists in the destination folder after upload."""
+        result = self._run_rmapi(["ls", self.folder], timeout=30)
+        if result.returncode != 0:
+            return False
+        # Strip extension for comparison — rmapi ls shows names without extension
+        base_name = filename.rsplit(".", 1)[0] if "." in filename else filename
+        for line in result.stdout.strip().splitlines():
+            if line.startswith("[f]"):
+                name = line.split("\t", 1)[1] if "\t" in line else ""
+                if name == base_name:
+                    return True
+        return False
 
     def create_folder(self, folder_path: str) -> None:
         """Create a folder on the reMarkable."""

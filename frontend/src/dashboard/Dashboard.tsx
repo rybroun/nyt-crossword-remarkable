@@ -5,19 +5,23 @@ import GridToolbar from './GridToolbar';
 import ActivityGrid from './ActivityGrid';
 import ProgressStrip from './ProgressStrip';
 import AutoFetchAside from './AutoFetchAside';
+import Library from '../library/Library';
 import './Dashboard.css';
 
 interface Props {
   schedule: ScheduleConfig;
   onOpenSettings: () => void;
   addToast: (msg: string) => void;
+  booksFolder: string;
+  libgenStatus: string;
+  rmStatus: string;
 }
 
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export default function Dashboard({ schedule, onOpenSettings, addToast }: Props) {
+export default function Dashboard({ schedule, onOpenSettings, addToast, booksFolder, libgenStatus, rmStatus }: Props) {
   const [view, setView] = useState<'week' | 'dayofweek'>('week');
   const [year, setYear] = useState(new Date().getFullYear());
   const [dow, setDow] = useState(new Date().getDay());
@@ -53,6 +57,7 @@ export default function Dashboard({ schedule, onOpenSettings, addToast }: Props)
   };
 
   return (
+    <>
     <section className="section">
       <div className="dash-layout">
         <div>
@@ -63,5 +68,14 @@ export default function Dashboard({ schedule, onOpenSettings, addToast }: Props)
         <AutoFetchAside schedule={schedule} onEdit={onOpenSettings} onPause={() => { api.schedule.pause(); addToast('Paused for 24 hours'); }} />
       </div>
     </section>
+
+    <Library
+      booksFolder={booksFolder}
+      fetchState={fetchState}
+      addToast={addToast}
+      libgenStatus={libgenStatus}
+      rmStatus={rmStatus}
+    />
+    </>
   );
 }

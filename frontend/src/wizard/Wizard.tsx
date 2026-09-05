@@ -77,7 +77,7 @@ export default function Wizard({ onComplete, onSkip }: Props) {
 
   const finish = async () => {
     await api.schedule.update({ days: days.map(d => DAY_NAMES[d]), time, timezone: tz, enabled: true });
-    await api.settings.update({ user_name: userName, remarkable_folder: folder, file_pattern: '{weekday}, {Mon} {DD}, {YYYY}' });
+    await api.settings.update({ user_name: userName, remarkable_folder: folder, file_pattern: '{weekday}, {Mon} {DD}, {YYYY}', books_folder: '/Books', libgen_mirror: 'libgen.rs' });
     onComplete();
   };
 

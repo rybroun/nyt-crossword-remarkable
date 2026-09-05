@@ -16,7 +16,9 @@ from nyt_crossword_remarkable.config import DEFAULT_CONFIG_DIR
 RMAPI_BIN_DIR = DEFAULT_CONFIG_DIR / "bin"
 RMAPI_BIN_PATH = RMAPI_BIN_DIR / "rmapi"
 RMAPI_RELEASE_URL = "https://github.com/ddvk/rmapi/releases/download/{tag}/{filename}"
-RMAPI_DEFAULT_TAG = "v0.0.32"
+# v0.0.34 fixes the ".docSchema" extension in Mirror/BuildTree. Older builds fail
+# every sync against the current reMarkable cloud with "mirror was not ok: status 400".
+RMAPI_DEFAULT_TAG = "v0.0.34"
 
 PLATFORM_ASSETS = {
     ("Darwin", "arm64"): "rmapi-macos-arm64.zip",
